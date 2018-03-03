@@ -19,6 +19,7 @@ pub struct Parameter {
 }
 
 #[derive(Clone, Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Parameter2 {
     pub name: Option<String>,
     pub pattern: Option<Regex>,
@@ -130,6 +131,7 @@ pub struct Function {
 }
 
 #[derive(Clone, Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Function2 {
     pub name: Option<String>,
     pub pattern: Option<Regex>,
