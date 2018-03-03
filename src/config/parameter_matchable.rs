@@ -1,4 +1,4 @@
-use super::ident::Ident;
+use super::ident::IdentLike;
 use super::matchable::Matchable;
 
 pub trait Functionlike {
@@ -15,7 +15,7 @@ pub trait ParameterMatchable {
     fn matched_parameters(&self, parameter_name: &str) -> Vec<&Self::Parameter>;
 }
 
-impl<'a, U: AsRef<Ident>, T: Functionlike<Parameter = U>> ParameterMatchable for [&'a T] {
+impl<'a, U: IdentLike, T: Functionlike<Parameter = U>> ParameterMatchable for [&'a T] {
     type Parameter = U;
 
     fn matched_parameters(&self, parameter_name: &str) -> Vec<&Self::Parameter> {

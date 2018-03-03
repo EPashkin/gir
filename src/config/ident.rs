@@ -1,6 +1,7 @@
 use regex::Regex;
 use toml::Value;
 
+use super::regex::Regex as Regex2;
 use super::error::TomlHelper;
 
 #[derive(Clone, Debug)]
@@ -57,4 +58,31 @@ impl Ident {
 
 pub trait IdentLike {
     fn is_match(&self, name: &str) -> bool;
+}
+
+impl IdentLike for Ident {
+    fn is_match(&self, name: &str) -> bool {
+        use self::Ident::*;
+        match *self {
+            Name(ref n) => name == n,
+            Pattern(ref regex) => regex.is_match(name),
+        }
+    }
+}
+
+pub trait IdentLike2 {
+    fn name(&self) -> Option<&String>;
+    fn pattern(&self) -> Option<&Regex2>;
+}
+
+impl <T: IdentLike2> IdentLike for T {
+    fn is_match(&self, name: &str) -> bool {
+        if let Some(n) = self.name() {
+            name == n
+        } else if let Some(regex) = self.pattern() {
+            regex.is_match(name)
+        } else {
+            unreachable!();
+        }
+    }
 }

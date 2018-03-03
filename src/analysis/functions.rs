@@ -19,6 +19,7 @@ use analysis::rust_type::*;
 use analysis::safety_assertion_mode::SafetyAssertionMode;
 use analysis::signatures::{Signature, Signatures};
 use config;
+use config::matchable::Matchable;
 use env::Env;
 use library::{self, Function, FunctionKind, Nullable, Parameter, Type};
 use nameutil;

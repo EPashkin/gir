@@ -5,7 +5,7 @@ use library;
 use library::Nullable;
 use super::error::TomlHelper;
 use super::functions::Return;
-use super::ident::Ident;
+use super::ident::{Ident, IdentLike};
 use super::parameter_matchable::Functionlike;
 use super::parsable::{Parsable, Parse};
 use version::Version;
@@ -84,6 +84,12 @@ impl Parse for Parameter {
 impl AsRef<Ident> for Parameter {
     fn as_ref(&self) -> &Ident {
         &self.ident
+    }
+}
+
+impl IdentLike for Parameter {
+    fn is_match(&self, name: &str) -> bool {
+        self.ident.is_match(name)
     }
 }
 
@@ -180,6 +186,12 @@ impl Functionlike for Signal {
 impl AsRef<Ident> for Signal {
     fn as_ref(&self) -> &Ident {
         &self.ident
+    }
+}
+
+impl IdentLike for Signal {
+    fn is_match(&self, name: &str) -> bool {
+        self.ident.is_match(name)
     }
 }
 

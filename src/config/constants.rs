@@ -1,4 +1,4 @@
-use super::ident::Ident;
+use super::ident::{Ident, IdentLike};
 use super::parsable::Parse;
 use toml::Value;
 use super::error::TomlHelper;
@@ -52,6 +52,12 @@ impl Parse for Constant {
 impl AsRef<Ident> for Constant {
     fn as_ref(&self) -> &Ident {
         &self.ident
+    }
+}
+
+impl IdentLike for Constant {
+    fn is_match(&self, name: &str) -> bool {
+        self.ident.is_match(name)
     }
 }
 

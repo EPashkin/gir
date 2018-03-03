@@ -1,6 +1,6 @@
 use library::Nullable;
 use super::error::TomlHelper;
-use super::ident::Ident;
+use super::ident::{Ident, IdentLike, IdentLike2};
 use super::parameter_matchable::Functionlike;
 use super::parsable::{Parsable, Parse};
 use super::regex::Regex;
@@ -70,6 +70,21 @@ impl Parse for Parameter {
 impl AsRef<Ident> for Parameter {
     fn as_ref(&self) -> &Ident {
         &self.ident
+    }
+}
+
+impl IdentLike for Parameter {
+    fn is_match(&self, name: &str) -> bool {
+        self.ident.is_match(name)
+    }
+}
+
+impl IdentLike2 for Parameter2 {
+    fn name(&self) -> Option<&String> {
+        self.name.as_ref()
+    }
+    fn pattern(&self) -> Option<&Regex> {
+        self.pattern.as_ref()
     }
 }
 
@@ -195,6 +210,13 @@ impl AsRef<Ident> for Function {
     }
 }
 
+impl IdentLike for Function {
+    fn is_match(&self, name: &str) -> bool {
+        self.ident.is_match(name)
+    }
+}
+
+
 pub type Functions = Vec<Function>;
 
 #[cfg(test)]
@@ -305,7 +327,7 @@ name = "func1"
     fn function_parse_parameter_name_default() {
         let toml = /*toml(*/
             r#"
-name = "par1"
+name = 'par1'
 "#/*,
         )*/;
         let par: Parameter2 = toml::from_str(&toml).unwrap();
@@ -321,17 +343,18 @@ name = "par1"
     fn function_parse_parameter_pattern_default() {
         let toml = /*toml(*/
             r#"
-pattern = "par/d"
+pattern = 'par\d'
 "#/*,
         )*/;
         let par: Parameter2 = toml::from_str(&toml).unwrap();
 
         assert_eq!(par.name, None);
         assert!(par.pattern.is_some());
-        assert_eq!(par.pattern.as_ref().unwrap().as_str(), "^par/d$");
+        assert_eq!(par.pattern.as_ref().unwrap().as_str(), "^par\\d$");
         assert_eq!(par.constant, false);
         assert_eq!(par.nullable, None);
         assert_eq!(par.length_of, None);
+
     }
 
     #[test]
@@ -489,4 +512,21 @@ pattern='par\d+'
         assert_eq!(m.matched_parameters("par3").len(), 3);
         assert_eq!(m.matched_parameters("par4").len(), 2);
     }
+
+    #[test]
+    fn functions_parse_matched2() {
+        let par1 = toml::from_str::<Parameter2>("name='par1'").unwrap();
+        let par2 = toml::from_str::<Parameter2>("name='par2'").unwrap();
+        let par3 = toml::from_str::<Parameter2>(r#"pattern='par\d+'"#).unwrap();
+
+        let v = vec![par1, par2, par3];
+
+        assert_eq!(v.matched("param").len(), 0);
+        assert_eq!(v.matched("par1").len(), 2);
+        assert_eq!(v.matched("par2").len(), 2);
+        assert_eq!(v.matched("par3").len(), 1);
+        assert_eq!(v.matched("par4").len(), 1);
+
+    }
+
 }

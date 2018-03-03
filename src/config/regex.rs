@@ -9,12 +9,14 @@ use library::Nullable;
 #[derive(Clone, Debug)]
 pub struct Regex(regex::Regex);
 
+/*
 impl Regex {
     pub fn new(pattern: &str) -> Result<Regex, regex::Error> {
         regex::Regex::new(pattern)
             .map(Regex)
     }
 }
+*/
 
 impl ops::Deref for Regex {
     type Target = regex::Regex;

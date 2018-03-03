@@ -1,7 +1,7 @@
 use toml::Value;
 
 use super::error::TomlHelper;
-use super::ident::Ident;
+use super::ident::{Ident, IdentLike};
 use super::parsable::Parse;
 use version::Version;
 
@@ -60,6 +60,12 @@ impl Parse for Member {
 impl AsRef<Ident> for Member {
     fn as_ref(&self) -> &Ident {
         &self.ident
+    }
+}
+
+impl IdentLike for Member {
+    fn is_match(&self, name: &str) -> bool {
+        self.ident.is_match(name)
     }
 }
 
