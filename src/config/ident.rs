@@ -1,5 +1,7 @@
+use std::fmt;
 use regex::Regex;
 use toml::Value;
+use serde::de::*;
 
 use super::regex::Regex as Regex2;
 use super::error::TomlHelper;
@@ -98,4 +100,40 @@ impl <T: IdentLike2> IdentLike for T {
             unreachable!();
         }
     }
+}
+
+pub fn deserialize_identlikes<'de, D, T: IdentLike2 + Deserialize<'de>>(de: D) -> Result<Vec<T>, D::Error>
+where D: Deserializer<'de> {
+    use std::marker::PhantomData;
+    use serde::de::{Error, Visitor};
+
+    struct ArrayVisitor<T>(PhantomData<T>);
+
+    impl<T> ArrayVisitor<T> {
+        pub fn new() -> Self {
+            ArrayVisitor(PhantomData)
+        }
+    }
+
+    impl<'de, T: IdentLike2 + Deserialize<'de>> Visitor<'de> for ArrayVisitor<T> {
+        type Value = Vec<T>;
+
+        fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            f.write_str("array")
+        }
+
+        fn visit_seq<A: SeqAccess<'de>>(self, mut seq: A) -> Result<Vec<T>, A::Error> {
+            let mut v = Vec::new();
+            while let Some(elem) = seq.next_element::<T>()? {
+                match (elem.name().is_some(), elem.pattern().is_some()) {
+                    (false, false) => return Err(A::Error::custom("No 'name' or 'pattern' given")),
+                    (true, true) => return Err(A::Error::custom("Both 'name' and 'pattern' given")),                     _ => ()
+                }
+                v.push(elem);
+            }
+            Ok(v)
+        }
+    }
+
+    de.deserialize_seq(ArrayVisitor::new())
 }

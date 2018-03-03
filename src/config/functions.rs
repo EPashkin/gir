@@ -1,6 +1,6 @@
 use library::Nullable;
 use super::error::TomlHelper;
-use super::ident::{Ident, IdentLike, IdentLike2};
+use super::ident::{Ident, IdentLike, IdentLike2, deserialize_identlikes};
 use super::parameter_matchable::Functionlike;
 use super::parsable::{Parsable, Parse};
 use super::regex::Regex;
@@ -138,7 +138,7 @@ pub struct Function2 {
     pub ignore: bool,
     //pub version: Option<Version>,
     pub cfg_condition: Option<String>,
-    #[serde(rename = "parameter")]
+    #[serde(rename = "parameter", deserialize_with = "deserialize_identlikes")]
     pub parameters: Parameters2,
     //pub ret: Return,
     #[serde(default)]
@@ -448,6 +448,35 @@ const = true
         assert_eq!(pars[3].pattern.as_ref().unwrap().as_str(), "^par4$");
         assert_eq!(pars[3].constant, true);
         assert_eq!(pars[3].nullable, None);
+    }
+
+    #[test]
+    #[should_panic]
+    fn function_deser_parameters_no_name_pattern() {
+        let toml = toml(
+            r#"
+name = 'func1'
+[[parameter]]
+const = true
+"#,
+        );
+        let f = toml::from_str::<Function2>(&toml.to_string());
+        f.unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn function_deser_parameters_both_name_pattern() {
+        let toml = toml(
+            r#"
+name = "func1"
+[[parameter]]
+name = 'par1'
+pattern = 'par2'
+"#,
+        );
+        let f = toml::from_str::<Function2>(&toml.to_string());
+        f.unwrap();
     }
 
     #[test]
