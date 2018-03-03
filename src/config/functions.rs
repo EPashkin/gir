@@ -23,7 +23,7 @@ pub struct Parameter2 {
     pub pattern: Option<Regex>,
     //true - parameter don't changed in ffi function,
     //false(default) - parameter can be changed in ffi function
-    #[serde(default)]
+    #[serde(default, rename="const")]
     pub constant: bool,
     pub nullable: Option<Nullable>,
     pub length_of: Option<String>,
@@ -82,6 +82,8 @@ impl IdentLike for Parameter {
 ident_like2!(Parameter2);
 
 pub type Parameters = Vec<Parameter>;
+pub type Parameters2 = Vec<Parameter2>;
+
 
 #[derive(Clone, Debug)]
 pub struct Return {
@@ -123,6 +125,27 @@ pub struct Function {
     pub ret: Return,
     pub doc_hidden: bool,
     pub is_windows_utf8: bool,
+    pub disable_length_detect: bool,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct Function2 {
+    pub name: Option<String>,
+    pub pattern: Option<Regex>,
+    //true - ignore this function,
+    //false(default) - process this function
+    #[serde(default)]
+    pub ignore: bool,
+    //pub version: Option<Version>,
+    pub cfg_condition: Option<String>,
+    #[serde(rename = "parameter")]
+    pub parameters: Parameters2,
+    //pub ret: Return,
+    #[serde(default)]
+    pub doc_hidden: bool,
+    #[serde(default)]
+    pub is_windows_utf8: bool,
+    #[serde(default)]
     pub disable_length_detect: bool,
 }
 
@@ -317,7 +340,7 @@ name = "func1"
     }
 
     #[test]
-    fn function_parse_parameter_name_default() {
+    fn function_deser_parameter_name_default() {
         let toml = /*toml(*/
             r#"
 name = 'par1'
@@ -333,13 +356,13 @@ name = 'par1'
     }
 
     #[test]
-    fn function_parse_parameter_pattern_default() {
+    fn function_deser_parameter_pattern_default() {
         let toml = /*toml(*/
             r#"
 pattern = 'par\d'
 "#/*,
         )*/;
-        let par: Parameter2 = toml::from_str(&toml).unwrap();
+        let par = toml::from_str::<Parameter2>(&toml).unwrap();
 
         assert_eq!(par.name, None);
         assert!(par.pattern.is_some());
@@ -347,7 +370,6 @@ pattern = 'par\d'
         assert_eq!(par.constant, false);
         assert_eq!(par.nullable, None);
         assert_eq!(par.length_of, None);
-
     }
 
     #[test]
@@ -386,6 +408,44 @@ const = true
         } else {
             assert!(false, "Pattern don't parsed");
         }
+        assert_eq!(pars[3].constant, true);
+        assert_eq!(pars[3].nullable, None);
+    }
+
+    #[test]
+    fn function_deser_parameters2() {
+        let toml = toml(
+            r#"
+name = "func1"
+[[parameter]]
+name = "par1"
+[[parameter]]
+name = "par2"
+const = false
+nullable = false
+[[parameter]]
+name = "par3"
+const = true
+nullable = true
+[[parameter]]
+pattern = "par4"
+const = true
+"#,
+        );
+        let f = toml::from_str::<Function2>(&toml.to_string()).unwrap();
+        let pars = f.parameters;
+        assert_eq!(pars.len(), 4);
+        assert_eq!(pars[0].name, Some("par1".into()));
+        assert_eq!(pars[0].constant, false);
+        assert_eq!(pars[0].nullable, None);
+        assert_eq!(pars[1].name, Some("par2".into()));
+        assert_eq!(pars[1].constant, false);
+        assert_eq!(pars[1].nullable, Some(Nullable(false)));
+        assert_eq!(pars[2].name, Some("par3".into()));
+        assert_eq!(pars[2].constant, true);
+        assert_eq!(pars[2].nullable, Some(Nullable(true)));
+        assert!(pars[3].pattern.is_some());
+        assert_eq!(pars[3].pattern.as_ref().unwrap().as_str(), "^par4$");
         assert_eq!(pars[3].constant, true);
         assert_eq!(pars[3].nullable, None);
     }
