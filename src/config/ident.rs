@@ -75,6 +75,19 @@ pub trait IdentLike2 {
     fn pattern(&self) -> Option<&Regex2>;
 }
 
+macro_rules! ident_like2 {
+    ( $name: ident ) => {
+        impl IdentLike2 for $name {
+            fn name(&self) -> Option<&String> {
+                self.name.as_ref()
+            }
+            fn pattern(&self) -> Option<&Regex> {
+                self.pattern.as_ref()
+            }
+        }
+    }
+}
+
 impl <T: IdentLike2> IdentLike for T {
     fn is_match(&self, name: &str) -> bool {
         if let Some(n) = self.name() {

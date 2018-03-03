@@ -79,14 +79,7 @@ impl IdentLike for Parameter {
     }
 }
 
-impl IdentLike2 for Parameter2 {
-    fn name(&self) -> Option<&String> {
-        self.name.as_ref()
-    }
-    fn pattern(&self) -> Option<&Regex> {
-        self.pattern.as_ref()
-    }
-}
+ident_like2!(Parameter2);
 
 pub type Parameters = Vec<Parameter>;
 
