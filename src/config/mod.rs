@@ -1,5 +1,5 @@
 #[macro_use]
-pub mod ident;
+pub mod identifiable;
 
 mod child_properties;
 #[cfg_attr(feature = "cargo-clippy", allow(module_inception))]
@@ -9,6 +9,7 @@ mod external_libraries;
 pub mod parameter_matchable;
 pub mod functions;
 pub mod gobjects;
+pub mod ident;
 pub mod matchable;
 pub mod members;
 pub mod parsable;

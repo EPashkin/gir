@@ -1,6 +1,7 @@
 use library::Nullable;
 use super::error::TomlHelper;
-use super::ident::{Ident, IdentLike, IdentLike2, deserialize_identlikes};
+use super::ident::{Ident, IdentLike};
+use super::identifiable::deserialize_identifiables;
 use super::parameter_matchable::Functionlike;
 use super::parsable::{Parsable, Parse};
 use super::regex::Regex;
@@ -79,7 +80,7 @@ impl IdentLike for Parameter {
     }
 }
 
-ident_like2!(Parameter2);
+define_identifiable!(Parameter2);
 
 pub type Parameters = Vec<Parameter>;
 pub type Parameters2 = Vec<Parameter2>;
@@ -138,7 +139,7 @@ pub struct Function2 {
     pub ignore: bool,
     //pub version: Option<Version>,
     pub cfg_condition: Option<String>,
-    #[serde(rename = "parameter", deserialize_with = "deserialize_identlikes")]
+    #[serde(rename = "parameter", deserialize_with = "deserialize_identifiables")]
     pub parameters: Parameters2,
     //pub ret: Return,
     #[serde(default)]
