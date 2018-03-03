@@ -3,6 +3,7 @@ use super::error::TomlHelper;
 use super::ident::Ident;
 use super::parameter_matchable::Functionlike;
 use super::parsable::{Parsable, Parse};
+use super::regex::Regex;
 use toml::Value;
 use version::Version;
 
@@ -15,6 +16,19 @@ pub struct Parameter {
     pub nullable: Option<Nullable>,
     pub length_of: Option<String>,
 }
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct Parameter2 {
+    pub name: Option<String>,
+    pub pattern: Option<Regex>,
+    //true - parameter don't changed in ffi function,
+    //false(default) - parameter can be changed in ffi function
+    #[serde(default)]
+    pub constant: bool,
+    pub nullable: Option<Nullable>,
+    pub length_of: Option<String>,
+}
+
 
 impl Parse for Parameter {
     fn parse(toml: &Value, object_name: &str) -> Option<Parameter> {
@@ -285,6 +299,39 @@ name = "func1"
         );
         let f = Function::parse(&toml, "a").unwrap();
         assert_eq!(f.ret.nullable, None);
+    }
+
+    #[test]
+    fn function_parse_parameter_name_default() {
+        let toml = /*toml(*/
+            r#"
+name = "par1"
+"#/*,
+        )*/;
+        let par: Parameter2 = toml::from_str(&toml).unwrap();
+
+        assert_eq!(par.name, Some("par1".into()));
+        assert_eq!(par.pattern, None);
+        assert_eq!(par.constant, false);
+        assert_eq!(par.nullable, None);
+        assert_eq!(par.length_of, None);
+    }
+
+    #[test]
+    fn function_parse_parameter_pattern_default() {
+        let toml = /*toml(*/
+            r#"
+pattern = "par/d"
+"#/*,
+        )*/;
+        let par: Parameter2 = toml::from_str(&toml).unwrap();
+
+        assert_eq!(par.name, None);
+        assert!(par.pattern.is_some());
+        assert_eq!(par.pattern.as_ref().unwrap().as_str(), "^par/d$");
+        assert_eq!(par.constant, false);
+        assert_eq!(par.nullable, None);
+        assert_eq!(par.length_of, None);
     }
 
     #[test]

@@ -52,3 +52,9 @@ impl Ident {
         }
     }
 }
+
+
+
+pub trait IdentLike {
+    fn is_match(&self, name: &str) -> bool;
+}

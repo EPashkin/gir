@@ -11,6 +11,7 @@ pub mod matchable;
 pub mod members;
 pub mod parsable;
 pub mod properties;
+pub mod regex;
 pub mod signals;
 pub mod work_mode;
 pub mod constants;

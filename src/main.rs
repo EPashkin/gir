@@ -13,6 +13,9 @@ extern crate hprof;
 extern crate lazy_static;
 #[macro_use]
 extern crate log;
+#[macro_use]
+extern crate serde_derive;
+extern crate serde;
 extern crate regex;
 extern crate stripper_lib;
 extern crate toml;
