@@ -3,8 +3,6 @@ use std::ops;
 use regex;
 use serde;
 
-use library::Nullable;
-
 //TODO: rename PatternRegex ?
 #[derive(Clone, Debug)]
 pub struct Regex(regex::Regex);
@@ -56,31 +54,5 @@ impl<'de> serde::Deserialize<'de> for Regex {
         }
 
         de.deserialize_str(RegexVisitor)
-    }
-}
-
-impl<'de> serde::Deserialize<'de> for Nullable {
-    fn deserialize<D>(de: D) -> Result<Nullable, D::Error>
-    where D: serde::Deserializer<'de>
-    {
-        use serde::de::{Error, Visitor};
-
-        struct NullableVisitor;
-
-        impl<'de> Visitor<'de> for NullableVisitor {
-            type Value = Nullable;
-
-            fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
-                println!("in expecting");
-                f.write_str("boolean")
-            }
-
-            fn visit_bool<E: Error>(self, v: bool) -> Result<Nullable, E> {
-                println!("in visit {:?}", v);
-                Ok(Nullable(v))
-            }
-        }
-
-        de.deserialize_bool(NullableVisitor)
     }
 }

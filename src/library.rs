@@ -62,8 +62,15 @@ impl Default for ParameterDirection {
     }
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq)]
+#[serde(from="bool")]
 pub struct Nullable(pub bool);
+
+impl From<bool> for Nullable {
+    fn from(b: bool) -> Self {
+        Nullable(b)
+    }
+}
 
 impl Deref for Nullable {
     type Target = bool;
