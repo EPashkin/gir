@@ -52,7 +52,7 @@ where D: Deserializer<'de> {
             let mut v = Vec::new();
             while let Some(elem) = seq.next_element::<T>()? {
                 match (elem.name().is_some(), elem.pattern().is_some()) {
-                    (false, false) => return Err(A::Error::custom("No 'name' or 'pattern' given")),
+                    (false, false) => return Err(A::Error::missing_field("name` or `pattern")),
                     (true, true) => return Err(A::Error::custom("Both 'name' and 'pattern' given")),
                     _ => ()
                 }
