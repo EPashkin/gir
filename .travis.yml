@@ -1,7 +1,12 @@
 language: rust
-rust:
-- nightly
-- stable
+matrix:
+  include:
+    - os: linux
+      rust: nightly
+    - os: linux
+      rust: stable
+    - os: windows
+      rust: stable
 addons:
   apt:
     packages:
